@@ -1,0 +1,151 @@
+:root {
+  --ca-blue: #1b3a6b;
+  --ca-blue-light: #2c5aa0;
+  --ca-teal: #17a2a8;
+  --ca-bg: #f4f6f9;
+  --ca-card-bg: #ffffff;
+  --ca-border: #e1e5ec;
+  --ca-text: #1c2733;
+  --ca-muted: #6b7684;
+}
+
+[data-bs-theme="dark"] {
+  --ca-blue: #4d7ac9;
+  --ca-blue-light: #6c93d9;
+  --ca-teal: #2fc7cd;
+  --ca-bg: #121620;
+  --ca-card-bg: #1a2030;
+  --ca-border: #2a3244;
+  --ca-text: #e6e9ef;
+  --ca-muted: #9aa4b2;
+}
+
+body {
+  background: var(--ca-bg);
+  color: var(--ca-text);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* ---------- Navbar ---------- */
+.app-navbar {
+  background: linear-gradient(90deg, var(--ca-blue) 0%, var(--ca-blue-light) 100%);
+  box-shadow: 0 2px 10px rgba(0,0,0,.12);
+}
+.app-navbar .brand-text { color: #fff; font-weight: 600; letter-spacing: .2px; }
+.app-navbar .btn-outline-secondary {
+  color: #fff; border-color: rgba(255,255,255,.5);
+}
+.app-navbar .btn-outline-secondary:hover { background: rgba(255,255,255,.15); color: #fff; }
+#brandLogo { filter: brightness(0) invert(1); }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--ca-card-bg);
+  border: 1px solid var(--ca-border);
+  border-radius: .6rem;
+}
+.card-header {
+  background: transparent;
+  border-bottom: 1px solid var(--ca-border);
+  font-weight: 600;
+  color: var(--ca-blue);
+}
+
+/* ---------- Stat cards ---------- */
+.stat-card {
+  background: var(--ca-card-bg);
+  border: 1px solid var(--ca-border);
+  border-radius: .6rem;
+  padding: 1rem 1.25rem;
+  text-align: center;
+}
+.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--ca-blue); }
+.stat-label { font-size: .8rem; color: var(--ca-muted); text-transform: uppercase; letter-spacing: .04em; }
+
+/* ---------- Calc boxes ---------- */
+.calc-box {
+  background: var(--ca-bg);
+  border: 1px dashed var(--ca-border);
+  border-radius: .5rem;
+  padding: .75rem .5rem;
+}
+.calc-value { font-size: 1.2rem; font-weight: 700; color: var(--ca-teal); }
+.calc-label { font-size: .72rem; color: var(--ca-muted); text-transform: uppercase; }
+
+/* ---------- Editor tabs ---------- */
+.editor-tabs .nav-link {
+  color: var(--ca-text);
+  border-radius: 2rem;
+  padding: .4rem 1rem;
+  font-size: .9rem;
+  border: 1px solid var(--ca-border);
+  margin-right: .4rem;
+}
+.editor-tabs .nav-link.active {
+  background: var(--ca-blue);
+  color: #fff;
+  border-color: var(--ca-blue);
+}
+
+/* ---------- Observation list ---------- */
+.obs-item {
+  display: flex;
+  align-items: flex-start;
+  gap: .6rem;
+  padding: .55rem .9rem;
+}
+.obs-item .obs-index {
+  min-width: 1.6rem;
+  font-weight: 700;
+  color: var(--ca-muted);
+  font-size: .8rem;
+  padding-top: .1rem;
+}
+.obs-item label { font-size: .88rem; cursor: pointer; }
+.obs-item.row2-options .sub-options {
+  display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin-top: .4rem;
+}
+.obs-item.row2-options .sub-options .form-check { margin-bottom: 0; }
+
+/* ---------- Recommendation rows ---------- */
+.rec-row {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .5rem .9rem; border-bottom: 1px solid var(--ca-border);
+}
+.rec-row:last-child { border-bottom: none; }
+.rec-row .rec-num { font-weight: 700; color: var(--ca-muted); min-width: 1.5rem; }
+
+/* ---------- Reports table ---------- */
+#reportsTable thead th {
+  color: var(--ca-muted);
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-bottom: 2px solid var(--ca-border);
+}
+#reportsTable td { vertical-align: middle; }
+
+/* ---------- Preview ---------- */
+.preview-scroll { overflow: auto; max-height: calc(100vh - 160px); }
+.preview-page-canvas {
+  box-shadow: 0 4px 20px rgba(0,0,0,.18);
+  background: #fff;
+}
+
+/* ---------- Filter card ---------- */
+.filter-card { border-radius: .6rem; }
+
+/* form controls in dark mode */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background-color: #232b3d;
+  color: var(--ca-text);
+  border-color: var(--ca-border);
+}
+
+.badge-final { background: #1b7a3d !important; }
+.badge-draft { background: #6b7684 !important; }
+
+@media print {
+  .app-navbar, #view-dashboard, #view-editor, .preview-scroll .btn-group, #printPdfBtn, #downloadPdfBtn { display: none !important; }
+}

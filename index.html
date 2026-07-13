@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asset Condition Appraisal &amp; Technical Report Generator</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ============================= TOP NAV ============================= -->
+<nav class="navbar navbar-expand-lg app-navbar sticky-top">
+  <div class="container-fluid px-3">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="#" id="brandHome">
+      <img src="assets/logo/columbia-asia-logo.svg" alt="Columbia Asia" id="brandLogo" height="28">
+      <span class="brand-text">Asset Appraisal Studio</span>
+    </a>
+    <div class="d-flex align-items-center gap-2 ms-auto">
+      <button class="btn btn-sm btn-outline-secondary" id="themeToggle" title="Toggle dark mode">
+        <i class="bi bi-moon-stars"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-secondary d-none d-md-inline-flex" id="navDashboardBtn">
+        <i class="bi bi-grid-1x2"></i>&nbsp;Dashboard
+      </button>
+      <button class="btn btn-sm btn-primary" id="navNewReportBtn">
+        <i class="bi bi-file-earmark-plus"></i>&nbsp;New Report
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================= DASHBOARD VIEW ============================= -->
+<main id="view-dashboard" class="container-fluid py-4 px-3 px-lg-4">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h1 class="h3 mb-1">Reports Dashboard</h1>
+      <p class="text-muted mb-0">Create, manage, and export Asset Condition Appraisal reports.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <button class="btn btn-primary" id="dashNewReportBtn"><i class="bi bi-file-earmark-plus"></i> New Report</button>
+      <label class="btn btn-outline-secondary mb-0">
+        <i class="bi bi-upload"></i> Load Existing
+        <input type="file" id="loadReportInput" accept=".json" hidden>
+      </label>
+    </div>
+  </div>
+
+  <!-- summary cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-label">Total Reports</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-value" id="statDrafts">0</div>
+        <div class="stat-label">Drafts</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-value" id="statBer">0</div>
+        <div class="stat-label">Flagged BER</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <div class="stat-value" id="statWarranty">0</div>
+        <div class="stat-label">Under Warranty</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- search / filters -->
+  <div class="card mb-3 filter-card">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-4">
+          <label class="form-label small mb-1">Search</label>
+          <input type="text" class="form-control" id="searchInput" placeholder="Asset no, serial no, hospital, department, manufacturer…">
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1">Hospital</label>
+          <select class="form-select" id="filterHospital"><option value="">All</option></select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1">Department</label>
+          <select class="form-select" id="filterDepartment"><option value="">All</option></select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1">Status</label>
+          <select class="form-select" id="filterStatus">
+            <option value="">All</option>
+            <option value="draft">Draft</option>
+            <option value="final">Final</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <button class="btn btn-outline-secondary w-100" id="clearFiltersBtn"><i class="bi bi-x-circle"></i> Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- reports table -->
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" id="reportsTable">
+        <thead>
+          <tr>
+            <th>Asset No.</th>
+            <th>Hospital</th>
+            <th>Department</th>
+            <th>Manufacturer</th>
+            <th>Status</th>
+            <th>Updated</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="reportsTableBody"></tbody>
+      </table>
+    </div>
+    <div class="card-body text-center text-muted d-none" id="emptyState">
+      <i class="bi bi-inbox display-4 d-block mb-2"></i>
+      No reports yet. Click <strong>New Report</strong> to get started.
+    </div>
+  </div>
+</main>
+
+<!-- ============================= EDITOR VIEW ============================= -->
+<main id="view-editor" class="container-fluid py-4 px-3 px-lg-4 d-none">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-outline-secondary" id="backToDashboardBtn"><i class="bi bi-arrow-left"></i> Back</button>
+      <h1 class="h4 mb-0" id="editorTitle">New Report</h1>
+      <span class="badge text-bg-secondary" id="editorStatusBadge">Draft</span>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <button class="btn btn-outline-secondary" id="saveDraftBtn"><i class="bi bi-save"></i> Save Draft</button>
+      <button class="btn btn-outline-secondary" id="duplicateBtn"><i class="bi bi-files"></i> Duplicate</button>
+      <button class="btn btn-outline-danger" id="deleteReportBtn"><i class="bi bi-trash"></i> Delete</button>
+      <button class="btn btn-primary" id="generatePdfBtn"><i class="bi bi-file-earmark-pdf"></i> Generate Report</button>
+    </div>
+  </div>
+
+  <ul class="nav nav-pills editor-tabs mb-3" id="editorTabs">
+    <li class="nav-item"><button class="nav-link active" data-tab="asset">1. Asset Info</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="observation">2. Observation</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="recommendation">3. Recommendation</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="technical">4. Technical Report</button></li>
+    <li class="nav-item"><button class="nav-link" data-tab="signoff">5. Sign-off</button></li>
+  </ul>
+
+  <form id="reportForm" autocomplete="off">
+
+    <!-- ---------- TAB: ASSET INFO ---------- -->
+    <section class="tab-pane" data-pane="asset">
+      <div class="card mb-3">
+        <div class="card-header">Asset Information <span class="text-muted small">— Page 1</span></div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Hospital Name</label><input class="form-control" name="hospitalName"></div>
+            <div class="col-md-6"><label class="form-label">Location Code</label><input class="form-control" name="locationCode"></div>
+            <div class="col-md-6"><label class="form-label">Asset Number</label><input class="form-control" name="assetNumber" required></div>
+            <div class="col-md-6"><label class="form-label">Department</label><input class="form-control" name="department"></div>
+            <div class="col-md-6"><label class="form-label">Asset Description</label><input class="form-control" name="assetDescription"></div>
+            <div class="col-md-6"><label class="form-label">Purchase Date</label><input type="date" class="form-control" name="purchaseDate"></div>
+            <div class="col-md-6"><label class="form-label">Model No. / Name</label><input class="form-control" name="modelNo"></div>
+            <div class="col-md-6"><label class="form-label">Warranty Expiry Date</label><input type="date" class="form-control" name="warrantyExpiry"></div>
+            <div class="col-md-6"><label class="form-label">Serial No.</label><input class="form-control" name="serialNo"></div>
+            <div class="col-md-6"><label class="form-label">Supplier</label><input class="form-control" name="supplier"></div>
+            <div class="col-md-6"><label class="form-label">Manufacturer</label><input class="form-control" name="manufacturer"></div>
+            <div class="col-md-6"><label class="form-label">Purchase Value (RM)</label><input type="number" step="0.01" class="form-control" name="purchaseValue"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Auto-Calculated Figures</div>
+        <div class="card-body">
+          <div class="row g-3 text-center">
+            <div class="col-6 col-md-3"><div class="calc-box"><div class="calc-value" id="calcAge">–</div><div class="calc-label">Equipment Age</div></div></div>
+            <div class="col-6 col-md-3"><div class="calc-box"><div class="calc-value" id="calcDepreciated">–</div><div class="calc-label">Depreciated Value</div></div></div>
+            <div class="col-6 col-md-3"><div class="calc-box"><div class="calc-value" id="calcWarranty">–</div><div class="calc-label">Warranty Remaining</div></div></div>
+            <div class="col-6 col-md-3"><div class="calc-box"><div class="calc-value" id="calcCurrent">–</div><div class="calc-label">Current Value</div></div></div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-md-4"><label class="form-label small">Life Span (years)</label><input type="number" class="form-control form-control-sm" name="lifeSpanYears" value="7"></div>
+            <div class="col-md-4"><label class="form-label small">Depreciation Rate (%/yr)</label><input type="number" class="form-control form-control-sm" name="depreciationRate" value="15"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- TAB: OBSERVATION ---------- -->
+    <section class="tab-pane d-none" data-pane="observation">
+      <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Observation Checklist <span class="text-muted small">— tick every line that applies; the "/" mark is placed automatically</span></span>
+        </div>
+        <div class="card-body p-0">
+          <div id="observationList" class="list-group list-group-flush"></div>
+        </div>
+      </div>
+      <div class="card mb-3">
+        <div class="card-header">Exemption / BER / Critical Level</div>
+        <div class="card-body">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-3 form-check">
+              <input class="form-check-input" type="checkbox" id="exemptionBox" name="exemptionChecked">
+              <label class="form-check-label" for="exemptionBox">Exemption applies</label>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">BER No. <span class="text-muted">(e.g. 2 / 5)</span></label>
+              <div class="input-group input-group-sm">
+                <input class="form-control" name="ber1" placeholder="2">
+                <span class="input-group-text">/</span>
+                <input class="form-control" name="ber2" placeholder="5">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small">Critical Level(s) <span class="text-muted">1–6, comma separated</span></label>
+              <input class="form-control form-control-sm" name="criticalLevel" placeholder="2, 3, 5">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- TAB: RECOMMENDATION ---------- -->
+    <section class="tab-pane d-none" data-pane="recommendation">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Recommendation <span class="text-muted small">— maximum 6 rows</span></span>
+          <button type="button" class="btn btn-sm btn-outline-primary" id="addRecommendationBtn"><i class="bi bi-plus-lg"></i> Add Row</button>
+        </div>
+        <div class="card-body p-0">
+          <div id="recommendationList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- TAB: TECHNICAL REPORT (page 2) ---------- -->
+    <section class="tab-pane d-none" data-pane="technical">
+      <div class="card mb-3">
+        <div class="card-header">Technical Report <span class="text-muted small">— Page 2, Section 1</span></div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4"><label class="form-label">CAH Facility</label><input class="form-control" name="cahFacility"></div>
+            <div class="col-md-4"><label class="form-label">Date</label><input type="date" class="form-control" name="tr_date"></div>
+            <div class="col-md-4"><label class="form-label">Hospital</label><input class="form-control" name="tr_hospital"></div>
+
+            <div class="col-md-4"><label class="form-label">Item Description</label><input class="form-control" name="tr_itemDescription"></div>
+            <div class="col-md-4"><label class="form-label">Location / Dept</label><input class="form-control" name="tr_locationDept"></div>
+            <div class="col-md-4"><label class="form-label">Value After Repair (RM)</label><input type="number" step="0.01" class="form-control" name="tr_valueAfterRepair"></div>
+
+            <div class="col-md-4"><label class="form-label">Asset No</label><input class="form-control" name="tr_assetNo"></div>
+            <div class="col-md-4"><label class="form-label">Supplier</label><input class="form-control" name="tr_supplier"></div>
+            <div class="col-md-4"><label class="form-label">Lifespan After Repair (yrs)</label><input type="number" class="form-control" name="tr_lifespanAfterRepair"></div>
+
+            <div class="col-md-4"><label class="form-label">Serial No</label><input class="form-control" name="tr_serialNo"></div>
+            <div class="col-md-4"><label class="form-label">Date Buy</label><input type="date" class="form-control" name="tr_dateBuy"></div>
+            <div class="col-md-4"><label class="form-label">Total Repair Cost (RM)</label><input type="number" step="0.01" class="form-control" name="tr_totalRepairCost"></div>
+
+            <div class="col-md-4"><label class="form-label">Model</label><input class="form-control" name="tr_model"></div>
+            <div class="col-md-4"><label class="form-label">Cost</label><input type="number" step="0.01" class="form-control" name="tr_cost"></div>
+            <div class="col-md-4"><label class="form-label">Frequency Breakdown</label><input class="form-control" name="tr_frequencyBreakdown"></div>
+
+            <div class="col-md-4"><label class="form-label">Brand</label><input class="form-control" name="tr_brand"></div>
+            <div class="col-md-4"><label class="form-label">Cost Repair / YR</label><input type="number" step="0.01" class="form-control" name="tr_costRepairYr"></div>
+            <div class="col-md-4"><label class="form-label">Date Warranty End</label><input type="date" class="form-control" name="tr_dateWarrantyEnd"></div>
+
+            <div class="col-md-4"><label class="form-label">Manufacturer</label><input class="form-control" name="tr_manufacturer"></div>
+            <div class="col-md-4"><label class="form-label">Current Value (RM)</label><input type="number" step="0.01" class="form-control" name="tr_currentValue"></div>
+            <div class="col-md-4"><label class="form-label">Work Order No</label><input class="form-control" name="tr_workOrderNo"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">Equipment / System Condition</div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-md-6 form-check"><input class="form-check-input" type="radio" name="equipmentCondition" value="newFunctioningGood" id="cond1"><label class="form-check-label" for="cond1">New &amp; functioning good</label></div>
+            <div class="col-md-6 form-check"><input class="form-check-input" type="radio" name="equipmentCondition" value="notReliable" id="cond2"><label class="form-check-label" for="cond2">Not reliable</label></div>
+            <div class="col-md-6 form-check"><input class="form-check-input" type="radio" name="equipmentCondition" value="notFollowSpec" id="cond3"><label class="form-check-label" for="cond3">Not follow specification</label></div>
+            <div class="col-md-6 form-check"><input class="form-check-input" type="radio" name="equipmentCondition" value="notSafeToUse" id="cond4"><label class="form-check-label" for="cond4">Not safe to use</label></div>
+            <div class="col-md-6 form-check"><input class="form-check-input" type="radio" name="equipmentCondition" value="beyondEconomical" id="cond5"><label class="form-check-label" for="cond5">Beyond economical repair</label></div>
+            <div class="col-md-6 form-check"><input class="form-check-input" type="radio" name="equipmentCondition" value="obsolete" id="cond6"><label class="form-check-label" for="cond6">Obsolete</label></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3"><div class="card-header">Request Details / Condition</div>
+        <div class="card-body"><textarea class="form-control" name="requestDetails" rows="3" maxlength="420"></textarea></div></div>
+      <div class="card mb-3"><div class="card-header">Findings / Action</div>
+        <div class="card-body"><textarea class="form-control" name="findings" rows="5" maxlength="720"></textarea></div></div>
+      <div class="card mb-3"><div class="card-header">Suggestion / Action</div>
+        <div class="card-body"><textarea class="form-control" name="suggestion" rows="3" maxlength="420"></textarea></div></div>
+    </section>
+
+    <!-- ---------- TAB: SIGN-OFF ---------- -->
+    <section class="tab-pane d-none" data-pane="signoff">
+      <div class="card mb-3">
+        <div class="card-header">Page 1 — Sign-off</div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3"><label class="form-label small">Prepared by</label><input class="form-control" name="preparedByName"><input type="date" class="form-control mt-1" name="preparedByDate"></div>
+            <div class="col-md-3"><label class="form-label small">Verified by</label><input class="form-control" name="verifiedByName"><input type="date" class="form-control mt-1" name="verifiedByDate"></div>
+            <div class="col-md-3"><label class="form-label small">Approved by</label><input class="form-control" name="approvedByName"><input type="date" class="form-control mt-1" name="approvedByDate"></div>
+            <div class="col-md-3"><label class="form-label small">Received by</label><input class="form-control" name="receivedByName"><input type="date" class="form-control mt-1" name="receivedByDate"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Page 2 — Sign-off</div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4"><label class="form-label small">Prepared by</label><input class="form-control" name="tr_preparedByName"><input type="date" class="form-control mt-1" name="tr_preparedByDate"></div>
+            <div class="col-md-4"><label class="form-label small">Checked by</label><input class="form-control" name="tr_checkedByName"><input type="date" class="form-control mt-1" name="tr_checkedByDate"></div>
+            <div class="col-md-4"><label class="form-label small">Received by</label><input class="form-control" name="tr_receivedByName"><input type="date" class="form-control mt-1" name="tr_receivedByDate"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </form>
+</main>
+
+<!-- ============================= PREVIEW VIEW ============================= -->
+<main id="view-preview" class="container-fluid py-4 px-3 px-lg-4 d-none">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-outline-secondary" id="backToEditorBtn"><i class="bi bi-arrow-left"></i> Back to Editor</button>
+      <h1 class="h4 mb-0">Preview</h1>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <div class="btn-group btn-group-sm" role="group">
+        <button class="btn btn-outline-secondary" id="zoomOutBtn"><i class="bi bi-zoom-out"></i></button>
+        <button class="btn btn-outline-secondary" id="fitWidthBtn">Fit Width</button>
+        <button class="btn btn-outline-secondary" id="fitPageBtn">Fit Page</button>
+        <button class="btn btn-outline-secondary" id="zoomInBtn"><i class="bi bi-zoom-in"></i></button>
+      </div>
+      <button class="btn btn-sm btn-outline-secondary" id="printPdfBtn"><i class="bi bi-printer"></i> Print</button>
+      <button class="btn btn-sm btn-primary" id="downloadPdfBtn"><i class="bi bi-download"></i> Download PDF</button>
+    </div>
+  </div>
+  <div class="preview-scroll" id="previewScroll">
+    <div id="previewPages" class="d-flex flex-column align-items-center gap-4"></div>
+  </div>
+</main>
+
+<!-- toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="appToast" class="toast align-items-center text-bg-dark border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="appToastBody">Saved.</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+<script src="fieldmap.js"></script>
+<script src="pdfgen.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
